@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { SendNotificationRequest } from './dtos/send-notification-request.dto';
-import { GetUiNotificationsRequest } from './dtos/ui-notifications-request.dto';
 
 @Controller('notification')
 export class NotificationController {

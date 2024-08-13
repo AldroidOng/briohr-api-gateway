@@ -1,4 +1,4 @@
-import { NotificationType } from 'shared/types/notification.types';
+import { NotificationType } from 'src/shared/types/notification.types';
 
 export class SendNotificationEvent {
   constructor(

@@ -1,20 +1,11 @@
 import { Module } from '@nestjs/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 import { NotificationModule } from './notification/notification.module';
 import { ProfileModule } from './profile/profile.module';
+import { ConfigModule } from './shared/config/config.module';
 
 @Module({
-  imports: [NotificationModule, ProfileModule],
+  imports: [NotificationModule, ProfileModule, ConfigModule],
   controllers: [],
   providers: [],
 })
 export class AppModule {}
-
-// {
-//   name: 'PROFILE',
-//   transport: Transport.TCP,
-//   options: {
-//     host: 'localhost',
-//     port: 3002, // Match the port used by user-service
-//   },
-// },

@@ -1,10 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { SendNotificationRequest } from './dtos/send-notification-request.dto';
 import { ClientProxy } from '@nestjs/microservices';
-import { SendNotificationEvent } from './events/send-notification-event';
 import { firstValueFrom } from 'rxjs';
-import { NotificationType } from 'shared/types/notification.types';
-import { GetUiNotificationsRequest } from './dtos/ui-notifications-request.dto';
 
 @Injectable()
 export class NotificationService {
