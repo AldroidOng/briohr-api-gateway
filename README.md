@@ -43,7 +43,7 @@ It also uses the git submodule (<a href="https://github.com/AldroidOng/briohr-sh
 If using along side with the microservices (profile service and notification service), the architecture diagram would look like below:
 
 <div align="center">
-  <img src="images/architecture-diagram.png" alt="Logo">
+  <img src="Images/architecture-diagram.png" alt="Logo">
 </div>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
