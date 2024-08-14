@@ -83,7 +83,7 @@ Ensure you have below software installed on your machine:
 3. Inside the working directory (Briohr), create a `docker-compose.yml` and insert the following code:
 
    ```yml
-   version: '3.8'
+    version: '3.8'
     services:
       api-gateway:
         build: ./api-gateway
@@ -97,8 +97,8 @@ Ensure you have below software installed on your machine:
         environment:
           - MONGODB_URI=mongodb://mongo:27017/briohr
           - NOTIFICATION_MICROSERVICE_HOST=notification-service
-          - NOTIFICATION_MICROSERVICE_PORT=3001
-
+          - NOTIFICATION_MICROSERVICE_PORT=3001   
+    
       notification-service:
         build: ./notification-service
         ports:
@@ -110,8 +110,8 @@ Ensure you have below software installed on your machine:
           - NOTIFICATION_MICROSERVICE_HOST=notification-service
           - NOTIFICATION_MICROSERVICE_PORT=3001
           - PROFILE_MICROSERVICE_HOST=profile-service
-          - PROFILE_MICROSERVICE_PORT=3002
-
+          - PROFILE_MICROSERVICE_PORT=3002     
+    
       profile-service:
         build: ./profile-service
         ports:
@@ -122,7 +122,7 @@ Ensure you have below software installed on your machine:
           - MONGODB_URI=mongodb://mongo:27017/briohr
           - PROFILE_MICROSERVICE_HOST=profile-service
           - PROFILE_MICROSERVICE_PORT=3002
-
+    
       mongo:
         image: mongo:latest
         ports:
@@ -131,11 +131,11 @@ Ensure you have below software installed on your machine:
           - app-network
         volumes:
           - mongo_data:/data/db
-
+    
     networks:
       app-network:
         driver: bridge
-
+    
     volumes:
       mongo_data:
    ```
