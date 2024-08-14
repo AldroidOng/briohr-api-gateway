@@ -73,7 +73,7 @@ Ensure you have below software installed on your machine:
 
 ### Steps to get it running
 
-1. Create a working directory that you wish to store your services. Exmaple of folder for reference: Briohr
+1. Create a working directory that you wish to store your services. Example of folder for reference: Briohr
 2. Clone the following repositories into the working directory you created (Briohr)
    ```sh
    git clone https://github.com/AldroidOng/briohr-api-gateway.git
@@ -82,11 +82,11 @@ Ensure you have below software installed on your machine:
    ```
 3. Inside the working directory (Briohr), create a `docker-compose.yml` and insert the following code:
 
-   ```yml
-    version: '3.8'
+    ```yml
+    version: "3.8"
     services:
       api-gateway:
-        build: ./api-gateway
+        build: ./briohr-api-gateway
         ports:
           - "3000:3000"
         depends_on:
@@ -97,10 +97,10 @@ Ensure you have below software installed on your machine:
         environment:
           - MONGODB_URI=mongodb://mongo:27017/briohr
           - NOTIFICATION_MICROSERVICE_HOST=notification-service
-          - NOTIFICATION_MICROSERVICE_PORT=3001   
-    
+          - NOTIFICATION_MICROSERVICE_PORT=3001
+
       notification-service:
-        build: ./notification-service
+        build: ./briohr-notification-service
         ports:
           - "3001:3001"
         networks:
@@ -110,10 +110,10 @@ Ensure you have below software installed on your machine:
           - NOTIFICATION_MICROSERVICE_HOST=notification-service
           - NOTIFICATION_MICROSERVICE_PORT=3001
           - PROFILE_MICROSERVICE_HOST=profile-service
-          - PROFILE_MICROSERVICE_PORT=3002     
-    
+          - PROFILE_MICROSERVICE_PORT=3002
+
       profile-service:
-        build: ./profile-service
+        build: ./briohr-profile-service
         ports:
           - "3002:3002"
         networks:
@@ -122,7 +122,7 @@ Ensure you have below software installed on your machine:
           - MONGODB_URI=mongodb://mongo:27017/briohr
           - PROFILE_MICROSERVICE_HOST=profile-service
           - PROFILE_MICROSERVICE_PORT=3002
-    
+
       mongo:
         image: mongo:latest
         ports:
@@ -131,23 +131,79 @@ Ensure you have below software installed on your machine:
           - app-network
         volumes:
           - mongo_data:/data/db
-    
+
     networks:
       app-network:
         driver: bridge
-    
+
     volumes:
       mongo_data:
-   ```
+    ```
 
-4. Open the terminal pointing to the working directory and run
+4. Inside the same working directory (briohr), create a script file `add-submodule.sh` and insert the following code to automatically add the sub modules into the respective services:
 
-   ```sh
-   docker-compose build
-   docker-compose up -d
-   ```
+    ```sh
+    #!/bin/bash
 
-5. The services should now be up and running. You may proceed to inspect the containers running using the <a href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a> or by inputting the below command:
+    # List of repositories to update
+    REPOS=(
+      "briohr-api-gateway"
+      "briohr-notification-service"
+      "briohr-profile-service"
+    )
+
+    # URL of the submodule
+    SUBMODULE_URL="https://github.com/AldroidOng/briohr-shared.git"
+    SUBMODULE_PATH="src/shared"
+
+    for REPO in "${REPOS[@]}"; do
+      echo "Processing repository: $REPO"
+      
+      # Enter the repository directory
+      cd $REPO || { echo "Failed to enter directory $REPO"; exit 1; }
+
+      # Check if the submodule path exists
+      if [ -d "$SUBMODULE_PATH" ]; then
+        if [ -d "$SUBMODULE_PATH/.git" ]; then
+          # Submodule path exists and is a Git repository
+          echo "Submodule directory '$SUBMODULE_PATH' exists and is already a Git repository."
+          echo "Updating submodule..."
+          git submodule update --recursive || { echo "Failed to update submodule in $REPO"; exit 1; }
+          git submodule update --remote
+        else
+          # Submodule path exists but is not a Git repository
+          echo "Submodule directory '$SUBMODULE_PATH' exists but is not a Git repository."
+          echo "Initializing submodule..."
+          git submodule init || { echo "Failed to initialize submodule in $REPO"; exit 1; }
+          git submodule update --recursive || { echo "Failed to update submodule in $REPO"; exit 1; }
+          git submodule update --remote
+        fi
+      else
+        # Submodule path does not exist
+        echo "Submodule directory '$SUBMODULE_PATH' does not exist."
+        echo "Initializing submodule..."
+        git submodule add https://github.com/AldroidOng/briohr-shared.git src/shared
+      fi
+
+      # Return to the parent directory
+      cd ..
+    done
+
+    echo "Submodule update complete for all repositories."    
+    ```
+
+5. Open the terminal  pointing to the working directory and run
+    ```sh
+    chmod +x add-submodule.sh   
+    ./add-submodule.sh
+    ```
+
+6. In the same terminal, run
+    ```sh
+    docker-compose up --build -d
+    ```
+
+7. The services should now be up and running. You may proceed to inspect the containers running using the <a href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a> or by inputting the below command:
 
    ```sh
    docker ps
@@ -169,24 +225,32 @@ To help you get started with the API, you can import the Postman collection by:
 
 Then, you may test the connection to the notification service by running the GET localhost:3000/notification/test
 
-To begin testing on the other services, you will firstly need to run GET localhost:3000/notification/seed to populate some data into the MongoDB respective collections.
-The list of username that you can used when calling the respective API that requires them are:
+To begin testing for other services, you will firstly need to run GET localhost:3000/notification/seed to populate some data into the MongoDB respective collections.
 
+The list of username that you can used when calling the respective API that requires them are:
 1. Email and UI User
 2. Email Only User
 3. UI Only User
 
 and the validate notificationType that you can when calling the POST localhost:3000/notification are:
-
 1. happy-birthday
 2. leave-balance-reminder
 3. monthly-payslip
 
+Services you can run with the postman collections are:
+```sh
+# Mock for send notification to user. In which it will also store the notifcation data into the MongoDB by username
+POST  localhost:3000/notification
+
+# To get list of UI channel notification only for specific username
+GET   localhost:3000/notification/ui-notifications?username=<valid_username>
+```
 <!-- ROADMAP -->
 
 ## Roadmap
 
 - [ ] Enhance to catch actual error message thrown from one service to another
+- [ ] Enhance for better connection integration between services with other transport type
 
 See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a full list of proposed features (and known issues).
 
